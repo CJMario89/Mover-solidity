@@ -240,9 +240,11 @@ contract MoverCore is Context, Ownable, Pausable, ERC721, Manageable, Reentrancy
     mapping (uint256 => Mover) internal mover; //token_id to Mover 
 
     function getMoverInfo(uint256 token_id) public view returns (uint256, uint256, uint256, uint256, uint256){
+        require(_exists(token_id), "The token doesn't exist");
         return (mover[token_id].level, mover[token_id].power, mover[token_id].metabolism, mover[token_id].coordination,  mover[token_id].vitality);
     }
     function getMoverInfo1(uint256 token_id) public view returns (uint256, uint256, uint256, bool){
+        require(_exists(token_id), "The token doesn't exist");
         return (mover[token_id].rarity, mover[token_id].lucky, mover[token_id].clone, mover[token_id].isClone);
     }
 
@@ -256,23 +258,26 @@ contract MoverCore is Context, Ownable, Pausable, ERC721, Manageable, Reentrancy
     function upgrade (uint256 token_id) public onlyManager(){
         require(mover[token_id].level < MAX_LEVEL, "You have already been max level");
         mover[token_id].level = SafeMath.add(mover[token_id].level, 1);
-        if(mover[token_id].level == 5){
-            mover[token_id].clone = SafeMath.add(mover[token_id].clone, 1);
-        }
-        if(mover[token_id].level == 10){
-            mover[token_id].clone = SafeMath.add(mover[token_id].clone, 1);
-        }
-        if(mover[token_id].level == 15){
-            mover[token_id].clone = SafeMath.add(mover[token_id].clone, 1);
-        }
-        if(mover[token_id].level == 20){
-            mover[token_id].clone = SafeMath.add(mover[token_id].clone, 1);
-        }
-        if(mover[token_id].level == 25){
-            mover[token_id].clone = SafeMath.add(mover[token_id].clone, 1);
-        }
-        if(mover[token_id].level == 30){
-            mover[token_id].clone = SafeMath.add(mover[token_id].clone, 1);
+
+        if(mover[token_id].isClone == false){
+            if(mover[token_id].level == 5){
+                mover[token_id].clone = SafeMath.add(mover[token_id].clone, 1);
+            }
+            if(mover[token_id].level == 10){
+                mover[token_id].clone = SafeMath.add(mover[token_id].clone, 1);
+            }
+            if(mover[token_id].level == 15){
+                mover[token_id].clone = SafeMath.add(mover[token_id].clone, 1);
+            }
+            if(mover[token_id].level == 20){
+                mover[token_id].clone = SafeMath.add(mover[token_id].clone, 1);
+            }
+            if(mover[token_id].level == 25){
+                mover[token_id].clone = SafeMath.add(mover[token_id].clone, 1);
+            }
+            if(mover[token_id].level == 30){
+                mover[token_id].clone = SafeMath.add(mover[token_id].clone, 1);
+            }
         }
     }
 
@@ -302,7 +307,6 @@ contract Origin is MoverCore{
 
         initial_Mover(_tokenIdCounter.current());
         _tokenIdCounter.increment();
-
 
     }                               
 
@@ -373,15 +377,16 @@ contract Clone is MoverCore{
         _safeMint(_msgSender(), _tokenIdCounter.current());
         payClone();
 
-        initial_Mover(_tokenIdCounter.current());
+        public_clone_initial_Mover(_tokenIdCounter.current());
         _tokenIdCounter.increment();
         
     }
 
     function clone (uint256 token_id) public payable nonReentrant whenNotPaused{
         require(_msgSender() == ownerOf(token_id), "Don't own this token");
-        require(mover[token_id].isClone, "Clone can't clone mover");
+        require(!mover[token_id].isClone, "Clone can't clone mover");
         require(_tokenIdCounter.current() <= 10000, "Exceed team mint limit");
+        require(mover[token_id].clone > 0, "Don't have enough times to clone");
 
         _safeMint(_msgSender(), _tokenIdCounter.current());
         payClone();
@@ -392,17 +397,17 @@ contract Clone is MoverCore{
         
     }
 
-    function initial_Mover(uint256 token_id) internal {
+    function public_clone_initial_Mover(uint256 token_id) internal {
         mover[token_id].level = 1;
         mover[token_id].power = 100;
         mover[token_id].metabolism = 100;
         mover[token_id].coordination = 100;
         mover[token_id].vitality = 50;
-        mover[token_id].rarity = rarity_determine();
+        mover[token_id].rarity = public_clone_rarity_determine();
         mover[token_id].isClone = true;
     }
 
-    function rarity_determine() view internal returns(uint256){
+    function public_clone_rarity_determine() view internal returns(uint256){
         uint256 number = random100();
         if(number < 50){
             return GRAY;
@@ -706,4 +711,9 @@ library SafeMath {
             return a % b;
         }
     }
+}
+
+
+contract MoverContract is Origin, Clone{
+
 }
