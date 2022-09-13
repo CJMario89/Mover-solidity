@@ -239,16 +239,6 @@ contract MoverCore is Context, Ownable, Pausable, ERC721, Manageable, Reentrancy
 
     mapping (uint256 => Mover) internal mover; //token_id to Mover 
 
-    // function getMoverInfo(uint256 token_id) public view returns (uint256[5] memory){
-    //     require(_exists(token_id), "The token doesn't exist");
-    //     uint256[5] memory data = [mover[token_id].level, mover[token_id].power, mover[token_id].metabolism, mover[token_id].coordination,  mover[token_id].vitality];
-    //     return data;
-    // }
-    // function getMoverInfo1(uint256 token_id) public view returns (uint256[3] memory, bool){
-    //     require(_exists(token_id), "The token doesn't exist");
-    //     uint256[3] memory data = [mover[token_id].rarity, mover[token_id].lucky, mover[token_id].clone];
-    //     return ( data, mover[token_id].isClone);
-    // }
 
     function getMoverInfo(uint256 token_id) public view returns (uint256[8] memory, bool){
         require(_exists(token_id), "The token doesn't exist");
@@ -309,8 +299,6 @@ contract MoverCore is Context, Ownable, Pausable, ERC721, Manageable, Reentrancy
 
 }
 
-//get ok
-//set tx.origin?? (onlyManager)
 
 
 contract Origin is MoverCore{
