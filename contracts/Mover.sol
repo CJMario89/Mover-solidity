@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 
 
- abstract contract Ownable is Context {
+abstract contract Ownable is Context {
     address private _owner;
 
     event OwnershipTransferred(address indexed previousOwner, address indexed newOwner);
@@ -239,13 +239,30 @@ contract MoverCore is Context, Ownable, Pausable, ERC721, Manageable, Reentrancy
 
     mapping (uint256 => Mover) internal mover; //token_id to Mover 
 
-    function getMoverInfo(uint256 token_id) public view returns (uint256, uint256, uint256, uint256, uint256){
+    // function getMoverInfo(uint256 token_id) public view returns (uint256[5] memory){
+    //     require(_exists(token_id), "The token doesn't exist");
+    //     uint256[5] memory data = [mover[token_id].level, mover[token_id].power, mover[token_id].metabolism, mover[token_id].coordination,  mover[token_id].vitality];
+    //     return data;
+    // }
+    // function getMoverInfo1(uint256 token_id) public view returns (uint256[3] memory, bool){
+    //     require(_exists(token_id), "The token doesn't exist");
+    //     uint256[3] memory data = [mover[token_id].rarity, mover[token_id].lucky, mover[token_id].clone];
+    //     return ( data, mover[token_id].isClone);
+    // }
+
+    function getMoverInfo(uint256 token_id) public view returns (uint256[8] memory, bool){
         require(_exists(token_id), "The token doesn't exist");
-        return (mover[token_id].level, mover[token_id].power, mover[token_id].metabolism, mover[token_id].coordination,  mover[token_id].vitality);
-    }
-    function getMoverInfo1(uint256 token_id) public view returns (uint256, uint256, uint256, bool){
-        require(_exists(token_id), "The token doesn't exist");
-        return (mover[token_id].rarity, mover[token_id].lucky, mover[token_id].clone, mover[token_id].isClone);
+        uint256[8] memory data;
+        data[0] = mover[token_id].level;
+        data[1] = mover[token_id].power;
+        data[2] = mover[token_id].metabolism;
+        data[3] = mover[token_id].coordination;
+        data[4] = mover[token_id].vitality;
+        data[5] = mover[token_id].rarity;
+        data[6] = mover[token_id].lucky;
+        data[7] = mover[token_id].clone;
+        bool isClone = mover[token_id].isClone;
+        return (data, isClone);
     }
 
     function increase_capability (uint256 token_id, uint256 power, uint256 metabolism, uint256 coordination, uint256 vitality) public onlyManager{
